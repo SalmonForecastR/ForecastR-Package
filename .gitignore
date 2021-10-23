@@ -1,12 +1,42 @@
-# History files
+# Session Data & History files
+.Rproj.user
+.RData
 .Rhistory
 .Rapp.history
+.RDataTmp
 
-# Session Data files
-.RData
+# shortcut files
+.exe.lnk
+.lnk
 
-# User-specific files
-.Ruserdata
+# temporary files created during report generation
+expsmoothfit.txt
+arimafit.txt
+simplelogpowerfit.txt
+
+# Ouput files
+*.pdf
+*.jpg
+*.tiff
+*.doc
+*.docx
+!TemplateReport/Template_ReporteRs.docx
+
+# other files
+*.zip
+
+# Folders
+/OUTPUT/
+/DATA/Archive
+/DATA/SourceFiles
+/ProjectManagement
+/Reference
+/WorkingGroup
+/KalmanSources
+/notes
+/Diagrams
+
+# REST IS FROM DEFAULT .gitignore for R
 
 # Example code in package build process
 *-Ex.R
@@ -28,12 +58,9 @@ vignettes/*.pdf
 .httr-oauth
 
 # knitr and R markdown default cache directories
-*_cache/
+/*_cache/
 /cache/
 
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-
-# R Environment Variables
-.Renviron
