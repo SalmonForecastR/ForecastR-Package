@@ -132,7 +132,43 @@ createBoots <- function(dat.prepped, boot.type=c("meboot", "stlboot"), boot.n=10
 
 
 
+#' Bootstrap and reformat raw data in the SibReg data format
+#'
+#' @param dat.sibreg some text
+#' @param boot.n some text
+#' @param plot.diagnostics some text
+#'
+#' @return
+#' @export
 
+
+createBootsSibReg <- function(data.sibreg, boot.n=100, plot.diagnostics=TRUE){
+
+n.rows <- dim(data.sibreg)[1]
+
+max.drop <- round(n.rows*0.2)
+
+
+for(i in 1: boot.n){
+#print("-------------")
+#print(i)
+obs.drop <- sample(max.drop,1,replace=FALSE)
+drop.rows<- sample(1:n.rows,obs.drop,replace=FALSE)
+#print(sort(drop.rows))
+
+if(i == 1){ boots.out <- list(data.sibreg[!(1:n.rows %in% drop.rows),]) }
+
+if(i > 1){ boots.out[[i]] <- data.sibreg[!(1:n.rows %in% drop.rows),] }
+
+
+}
+
+
+return(boots.out)
+
+
+
+}
 
 
 
@@ -145,8 +181,7 @@ createBoots <- function(dat.prepped, boot.type=c("meboot", "stlboot"), boot.n=10
 #' @return point forecast.
 #' @export
 
-fitModelandcalcFC <- function( data = NULL, data.sibreg = NULL,
-															 fitmodel.args =list (model= NULL,  settings = NULL),
+fitModelandcalcFC <- function( data = NULL, data.sibreg =NULL, fitmodel.args =list (model= NULL,  settings = NULL),
 calcfc.args = list(fc.yr= NULL,  settings = NULL),predictors = NULL, covariates = NULL){
 # function to apply fitModel() then calcFC(), and save to ptfc.
 
@@ -156,12 +191,13 @@ calcfc.args = list(fc.yr= NULL,  settings = NULL),predictors = NULL, covariates 
 	#print("predictors")
 	#print(data)
 
-	 pt.fc <- calcFC(fit.obj= fit.out, data = data, data.sibreg = data.sibreg, fc.yr= calcfc.args$fc.yr,
+	 pt.fc <- calcFC(fit.obj= fit.out, data = data, data.sibreg = data.sibreg,
+						fc.yr= calcfc.args$fc.yr,
 						settings = calcfc.args$settings, tracing=FALSE,
 						predictors = predictors,
 						covariates = covariates)[[1]]
 
-					# NEED TO CHANGE THIS TO HANDLE NEW calcFC Arguments: predictors, covariates -> obsolete?
+
 
 	return(pt.fc)
 
