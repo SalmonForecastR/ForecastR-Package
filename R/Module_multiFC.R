@@ -153,8 +153,12 @@ print(paste("starting",model.name))
 
 
 
+			print("ENTERING BOOTS -------------------------------")
+			print(dat.prepped$sibreg.in)
 
-			boot.int <- doBoot(data= dat.prepped, args.fitmodel= list(model= model.use, settings = settings.use),
+			boot.int <- doBoot(data= dat.prepped,
+												 data.sibreg = dat.prepped$sibreg.in,
+												 args.fitmodel= list(model= model.use, settings = settings.use),
 						args.calcfc = list(fc.yr= dat.prepped$specs$forecastingyear,  settings = settings.use),
 						args.boot = list(boot.type=boot.type, boot.n= int.n , plot.diagnostics=FALSE),
 						full.out = TRUE, plot.out=FALSE)

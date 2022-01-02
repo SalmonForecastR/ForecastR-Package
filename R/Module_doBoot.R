@@ -23,8 +23,7 @@
 #' @export
 #'
 #' @examples
-doBoot <- function(data, args.fitmodel = list(model= "Naive", settings = list(avg.yrs=3)), args.calcfc = list(fc.yr= NULL,  settings = NULL),
-									 args.boot = list(boot.type=c("meboot", "stlboot"), boot.n=100, plot.diagnostics=FALSE), full.out = FALSE, plot.out = FALSE){
+doBoot <- function(data, data.sibreg, args.fitmodel = list(model= "Naive", settings = list(avg.yrs=3)), args.calcfc = list(fc.yr= NULL,  settings = NULL), args.boot = list(boot.type=c("meboot", "stlboot"), boot.n=100, plot.diagnostics=FALSE), full.out = FALSE, plot.out = FALSE){
 
 # large subroutines stored in separate files:
 # meboot2() in Module_Sub_boot_me.R
@@ -47,12 +46,17 @@ if(any(is.null(data),is.null(args.calcfc$fc.yr))){warning("must provide data fil
 
 data.booted <- createBoots(data, boot.type= args.boot$boot.type, boot.n=args.boot$boot.n, plot.diagnostics=args.boot$plot.diagnostics)
 
+print("inside doBoot")
+print(data.sibreg)
 
-data.booted.sibreg <-
+if(!is.null(data.sibreg)){
+data.booted.sibreg <-  createBootsSibReg(data.sibreg, boot.n=args.boot$boot.n, plot.diagnostics=args.boot$plot.diagnostics)
+}
 
+if(is.null(data.sibreg)){
+data.booted.sibreg <-  NULL
+}
 
-#print(names(data.booted))
-#print(head(data.booted))
 
 if("predictors" %in% names(data)){ predictors.use <- data$predictors}
 if(!("predictors" %in% names(data))){ predictors.use <- NULL}
@@ -62,12 +66,6 @@ if(!("predictors" %in% names(data))){ predictors.use <- NULL}
 # for now, not bootstrapping the covariates
 if("covariates" %in% names(data)){ covariates.use <- data$covariates}
 if(!("covariates" %in% names(data))){ covariates.use <- NULL}
-
-# JUL 2021:
-# - covariates argument  and predictors argument now obsolete -> need to rethink the above
-# - using new data structure for sib reg model forms -> how to boot?
-
-
 
 
 # NOTE: doing this step below in a loop. it works with lapply as well, but
@@ -95,8 +93,8 @@ out.mat <- matrix(NA, ncol= length(out.mat.cols) ,nrow = length(data.booted), di
 for(i in 1:length(data.booted)){
 
 	out.mat[i,] <-	unlist(fitModelandcalcFC(data = data.booted[[i]],
-												data.sibreg = data.booted.sibreg[[i]],
-										    fitmodel.args = args.fitmodel, calcfc.args = args.calcfc,
+							data.sibreg = data.booted.sibreg[[i]],
+							fitmodel.args = args.fitmodel, calcfc.args = args.calcfc,
 												predictors = predictors.use,
 												covariates = covariates.use))
 

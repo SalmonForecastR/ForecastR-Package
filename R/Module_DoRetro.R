@@ -132,9 +132,19 @@ for(fc.yr.retro in retro.yrs){
 print("----------------------------------")
 print(fc.yr.retro)
   data.use <- data.extract(data,yrs=fc.yr.retro,option="retro")
+  
+  if(!is.null(data.sibreg)){
   data.use.sibreg <- data.sibreg %>% dplyr::filter(Brood_Year < fc.yr.retro - max(ages.vec))
   				# TEMPORARY KLUDGE: SEE https://github.com/MichaelFolkes/forecastR_package/issues/32
           # only used in fitModel. calcFC subsets as needed anyway
+	}
+  if(is.null(data.sibreg)){
+  data.use.sibreg <- NULL
+	}
+
+
+	
+		  
 
   model.fitted <- fitModel(model= model, data = data.use, data.sibreg = data.use.sibreg,
   												 settings = fit.settings,tracing=FALSE)
