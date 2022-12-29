@@ -16,11 +16,10 @@
 
 
 
-#### Generic Linear Model ####
+#### Generic Linear Model #### NOTE: THIS IS NOT A *GENERALIZED LINEAR MODEL (GLM)* -> GLM is used only for No Age with Covariates model
 # used in the following
 # * simple sibling regression
 # * simple log power sibling regression
-
 # Should work for complex sibreg as well? -> need to discuss
 
 
@@ -412,6 +411,10 @@ sibreg.simple.list <- list(estimator = sibreg.simple.est, datacheck= sibreg.simp
 
 #### COMPLEX SIBLING REGRESSION ####
 
+# IMPORTANT NOTE: Noage Covar model (below) uses some of the same structure to set up alt model forms and select a best model
+#                 Any changes here need to be implemented there as well!
+
+
 sibreg.complex.datacheck <- function(model.data,tracing=FALSE){
 # verify that all the requires components are there
 # and check for any special values that might crash the estimate
@@ -480,21 +483,21 @@ sibreg.complex.est <- function(X, settings = list(tol.AIC = 0.75,
 	# expand.grid(covars.list,covars.list, stringsAsFactors = FALSE)
 
 	covars.combos <- covars.list # individual covars
-				
+
 if(length(covars.list)>=2){
-	covars.combos <- c(covars.list,
+	covars.combos <- c(covars.combos,
 			combn(covars.list,2) %>% apply(MARGIN = 2, paste,collapse = " + "), #pairs
 			combn(covars.list,2) %>% apply(MARGIN = 2, paste,collapse = " * ")  # pairs with interaction
 			)
 		}
 if(length(covars.list)>=3){
-		covars.combos <- c(covars.list,
+		covars.combos <- c(covars.combos,
 			combn(covars.list,3) %>% apply(MARGIN = 2, paste,collapse = " + "), # triples
 			paste("( ", combn(covars.list,3) %>% apply(MARGIN = 2, paste,collapse = " + ")," )^2")  # triples with pairwise interaction
 			)
-		}	
-			
-			
+		}
+
+
 	#covars.combos
 
 	if(settings$incl.base.eq){eq.list <- c(settings$base.eq,paste(settings$eq.base,covars.combos,sep=" + "))} # also include the "no cov" option in the candidate models
@@ -599,15 +602,6 @@ sibreg.complex.pt.fc <- function(fit.obj, data,settings = NULL){
 sibreg.complex.list <- list(estimator = sibreg.complex.est,
 														datacheck= sibreg.complex.datacheck ,
 														pt.fc = sibreg.complex.pt.fc)
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1036,6 +1030,202 @@ expsmooth.list <- list(estimator = expsmooth.est, datacheck= expsmooth.datacheck
 
 
 
+
+
+
+
+
+
+
+#### Noage Covar Model  (No age classes, but using covariates to total return####
+
+# IMPORTANT NOTE: Complex Sibling regression model (above) uses some of the same structure to set up alt model forms and select a best model
+#                 Any changes here need to be implemented there as well!
+
+
+noage.covar.datacheck <- function(model.data,tracing=FALSE){
+	# verify that all the requires components are there
+	# and check for any special values that might crash the estimate
+
+	if(tracing){print("Starting noage.covar.datacheck()")}
+
+	total.check <- !is.null(model.data$data$Total)
+	covar.check <- !is.null(model.data$covariates)
+
+
+	# NA values a problem? -> don't think see, need to test
+	# Missing years a problem? -> don't think so, need to test
+	# Zero values a problem? -> don't think so, need to test
+
+
+	tmp.out <- list(total.check = total.check,
+									covar.check = covar.check,
+									covars = names(model.data$covariates)[-1]
+									)
+
+	return(tmp.out)
+
+}#END noage.covar.datacheck
+
+
+
+
+noage.covar.est <- function(X, settings = list(tol.AIC = 0.75,
+																									tol.r.sq = 0.02,
+																									base.eq ="Age_4 ~ -1 + Age_3",
+																									incl.base.eq = TRUE),
+															 tracing=FALSE){
+	# X data frame with Run_Year, Brood_Year Age_4 Age_3, and several covariates marked as  "Cov_LABEL"
+	# tol.AIC  AIC tolerance: include in shortlist any with x% prob that this version will "minimize information loss" (i.e. best fit)
+	# tol.r.sq  Rsq tolerance: include in shortlist any with adj.r.sq >=  max(adj.r.sq)
+	# base.eq  simple sibling regression equation specifying the age classes to use (e.g.: "Age_4 ~ -1 + Age_3")
+	# incl.base.eq if TRUE also include the simple sibreg in the model ranking (i.e. if running this functions outside the app)
+
+
+	# MODEL SELECTION STEP
+
+	covars.list <- names(X)[grepl("Cov_",names(X))]
+
+	# expand.grid(covars.list,covars.list, stringsAsFactors = FALSE)
+
+	covars.combos <- covars.list # individual covars
+
+	if(length(covars.list)>=2){
+		covars.combos <- c(covars.combos,
+											 combn(covars.list,2) %>% apply(MARGIN = 2, paste,collapse = " + "), #pairs
+											 combn(covars.list,2) %>% apply(MARGIN = 2, paste,collapse = " * ")  # pairs with interaction
+		)
+	}
+	if(length(covars.list)>=3){
+		covars.combos <- c(covars.combos,
+											 combn(covars.list,3) %>% apply(MARGIN = 2, paste,collapse = " + "), # triples
+											 paste("( ", combn(covars.list,3) %>% apply(MARGIN = 2, paste,collapse = " + ")," )^2")  # triples with pairwise interaction
+		)
+	}
+
+
+	#covars.combos
+
+	if(settings$incl.base.eq){eq.list <- c(settings$base.eq,paste(settings$eq.base,covars.combos,sep=" + "))} # also include the "no cov" option in the candidate models
+	if(!settings$incl.base.eq){eq.list <- paste(settings$base.eq,covars.combos,sep=" + ")} # only include variations of the covariate model
+	#
+
+
+	diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.r.sq = NA, AIC = NA)
+
+	for(i in 1:length(eq.list)){
+		#print("------------------")
+		#print(eq.list[i])
+
+		fit.tmp <- lm(eq.list[i],  X)
+		fit.tmp
+		diy.out$adj.r.sq[i] <- round(summary(fit.tmp)$adj.r.squared,3)
+		diy.out$AIC[i] <- round(AIC(fit.tmp),3)
+		diy.out$numCoeff[i] <- length(fit.tmp$coefficients)
+
+
+	}
+
+	print("AIC debug ---")
+	print(diy.out$AIC)
+	print(settings$tol.AIC)
+
+	diy.out <- diy.out %>%
+		mutate(diffAIC = min(AIC)-AIC) %>%
+		mutate(probAIC = exp(diffAIC/2)) %>%
+		mutate(rankAIC = rank(AIC,ties.method="min"),rankRsq = rank(-adj.r.sq,ties.method="min")) %>%
+		mutate(shortAIC = probAIC >= settings$tol.AIC, shortRsq = adj.r.sq >= (max(adj.r.sq) - settings$tol.r.sq)  ) %>%
+		mutate(shortBoth = shortAIC & shortRsq)
+
+	# REVISED!!!!!!!!!!!!!!!!!!!!!!
+	# if shortBoth = TRUE, then a model is on the shortlist for both AIC and r2
+	# 1) if have only 1 TRUE for shortBoth, pick that one
+	# 2) if have multiple TRUE in shortBoth, go by highest R2 (not min number coeff!)
+	# if have none in shortBoth, look at shortAIC = TRUE, and from that list pick the highest R2
+
+	diy.out$selected <- FALSE
+
+	# OLD
+	#select.idx <- diy.out$shortAIC & diy.out$numCoeff == min(diy.out$numCoeff[diy.out$shortAIC])
+	#if(sum(select.idx)>1){select.idx <- select.idx & diy.out$AIC == min(diy.out$AIC[select.idx]) }
+
+	# NEW
+	n.shortboth <- sum(diy.out$shortBoth)
+	#print(n.shortboth)
+
+	if(n.shortboth == 1){ diy.out$selected[diy.out$shortBoth] <- TRUE}
+
+	if(n.shortboth > 1){ diy.out$selected[diy.out$shortBoth & diy.out$rankRsq == min(diy.out$rankRsq[diy.out$shortBoth]) ] <- TRUE  }
+
+	if(n.shortboth == 0){diy.out$selected[diy.out$shortAIC & diy.out$rankRsq == min(diy.out$rankRsq[diy.out$shortAIC]) ] <- TRUE  }
+
+
+	#print(diy.out)
+
+
+	# FITTING STEP (Using selected model, get lm obj, fitted vals etc)
+
+	eq.use <- diy.out$equ[diy.out$selected]
+	model.fit <- lm.fit(formula.use = eq.use ,data.use=X %>% select(-Run_Year, -Brood_Year) )
+
+	# OUTPUT
+
+	return(c(list(model.type = "SibRegComplex",
+								formula = eq.use,
+								var.names = paste(paste(names(X)[grepl("Age_",names(X))],collapse = ","), covars.combos[diy.out$selected],sep = ","),
+								est.fn = "lm()"),
+					 model.fit,
+					 list(fitted.values = model.fit$fitted.values.raw),
+					 list(model.selection = diy.out))
+	)
+
+
+} # end noage.covar.est
+
+
+
+
+noage.covar.pt.fc <- function(fit.obj, data,settings = NULL){
+	# fit.obj = object created from fitModel()
+	# data = data frame with one element of the list created by sub.fcdata()
+
+
+	# This has a temporary patch below
+	# fit.obj$fit.obj should not be necessary
+	# -> should fix list object handling between sibreg.simple.est() and this fn.
+
+	#print("entering sibreg.pt.fc -----------------------------")
+	#print(names(fit.obj))
+
+	pt.fc <- predict.lm(fit.obj$fit.obj,newdata = data, interval= "prediction", level=0.8 )
+
+	return(pt.fc)
+
+}#END noage.covar.pt.fc
+
+# Merge object
+
+noage.covar.list <- list(estimator = noage.covar.est,
+														datacheck= noage.covar.datacheck ,
+														pt.fc = noage.covar.pt.fc)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### MERGING ALL THE MODELS ####
 
 estimation.functions <- list(Naive = naive.list,
@@ -1047,5 +1237,6 @@ estimation.functions <- list(Naive = naive.list,
 														 SibRegPooledLogPower = logpower.simple.list,  # using same functions as logpower sibreg, but feeding in pooled var
                              TimeSeriesArima = arima.list,
                              TimeSeriesExpSmooth = expsmooth.list,
-                             SibRegComplex=sibreg.complex.list)
+                             SibRegComplex=sibreg.complex.list,
+														 NoAgeCovar = noage.covar.list)
 
