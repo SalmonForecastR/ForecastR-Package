@@ -3,19 +3,31 @@
 library(forecastR)
 library(tidyverse)
 
-data.noagewithcovar.raw <- read.csv("NoAge_Covar_Test_INPUT.csv", stringsAsFactors = FALSE)
-head(data.withage.raw)
+#data.noagewithcovar.raw <- read.csv("NoAge_Covar_Test_INPUT.csv", stringsAsFactors = FALSE)
+data.noagewithcovar.raw <- read.csv("NoAge_Covar_Test_INPUT_Fixed_Covar_Labels.csv", stringsAsFactors = FALSE)
+
+head(data.noagewithcovar.raw)
 
 data.noagewithcovar <- prepData(data.noagewithcovar.raw,out.labels="v2")
 
 names(data.noagewithcovar)
 names(data.noagewithcovar$data)
 head(data.noagewithcovar$data)
+data.noagewithcovar$data$Total
 data.noagewithcovar$covariates
+!is.null(data.noagewithcovar$covariates)
+names(data.noagewithcovar$covariates)[-1]
+
+
+data.noagenocovar <- prepData(data.noagewithcovar.raw %>% select(-starts_with("Cov_")),out.labels="v2")
+names(data.noagenocovar )
+data.noagenocovar$covariates
+!is.null(data.noagenocovar$covariates)
+
 
 fc.yr <- data.noagewithcovar$specs$forecastingyear
 
-fit1 <- glm(Total ~  Cov_npgo_sum_2 + Cov_EV + Cov_epnp_sum_2, data = data.noagewithcovar$data$Total, family = "poisson")
+fit1 <- glm(Total ~  Cov_npgosum2 + Cov_EV + Cov_epnpsum2, data = data.noagewithcovar$data$Total, family = "poisson")
 summary(fit1)
 
 
@@ -70,6 +82,7 @@ plot(data.noagewithcovar$covariates[,1],data.noagewithcovar$covariates[,i],bty="
 ######################################################################
 library(tidyverse)
 
+# Just checking the alt model form generation
 test.list <- c("a","b","c")
 base.eq <- TRUE
 
@@ -97,6 +110,19 @@ if(!base.eq){eq.list <- paste("Age_4 ~ -1 + Age_3",covars.combos,sep=" + ")} # o
 
 
 eq.list
+
+
+
+################################################################################################################
+# FUNCTION CHECKING
+
+
+
+forecastR:::noage.covar.datacheck
+forecastR:::noage.covar.datacheck(data.noagewithcovar,tracing = TRUE)
+
+
+
 
 
 
