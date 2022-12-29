@@ -16,11 +16,10 @@
 
 
 
-#### Generic Linear Model ####
+#### Generic Linear Model #### NOTE: THIS IS NOT A *GENERALIZED LINEAR MODEL (GLM)* -> GLM is used only for No Age with Covariates model
 # used in the following
 # * simple sibling regression
 # * simple log power sibling regression
-
 # Should work for complex sibreg as well? -> need to discuss
 
 
@@ -480,21 +479,21 @@ sibreg.complex.est <- function(X, settings = list(tol.AIC = 0.75,
 	# expand.grid(covars.list,covars.list, stringsAsFactors = FALSE)
 
 	covars.combos <- covars.list # individual covars
-				
+
 if(length(covars.list)>=2){
-	covars.combos <- c(covars.list,
+	covars.combos <- c(covars.combos,
 			combn(covars.list,2) %>% apply(MARGIN = 2, paste,collapse = " + "), #pairs
 			combn(covars.list,2) %>% apply(MARGIN = 2, paste,collapse = " * ")  # pairs with interaction
 			)
 		}
 if(length(covars.list)>=3){
-		covars.combos <- c(covars.list,
+		covars.combos <- c(covars.combos,
 			combn(covars.list,3) %>% apply(MARGIN = 2, paste,collapse = " + "), # triples
 			paste("( ", combn(covars.list,3) %>% apply(MARGIN = 2, paste,collapse = " + ")," )^2")  # triples with pairwise interaction
 			)
-		}	
-			
-			
+		}
+
+
 	#covars.combos
 
 	if(settings$incl.base.eq){eq.list <- c(settings$base.eq,paste(settings$eq.base,covars.combos,sep=" + "))} # also include the "no cov" option in the candidate models

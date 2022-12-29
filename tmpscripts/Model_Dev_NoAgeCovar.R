@@ -61,3 +61,44 @@ plot(data.noagewithcovar$covariates[,1],data.noagewithcovar$covariates[,i],bty="
 	abline(v=2022,col="red",lty=2)
 
 }
+
+
+
+
+
+
+######################################################################
+library(tidyverse)
+
+test.list <- c("a","b","c")
+base.eq <- TRUE
+
+covars.combos <- test.list # individual covars
+
+if(length(test.list)>=2){
+	covars.combos <- c(covars.combos,
+										 combn(test.list,2) %>% apply(MARGIN = 2, paste,collapse = " + "), #pairs
+										 combn(test.list,2) %>% apply(MARGIN = 2, paste,collapse = " * ")  # pairs with interaction
+	)
+}
+
+if(length(test.list)>=3){
+	covars.combos <- c(covars.combos,
+										 combn(test.list,3) %>% apply(MARGIN = 2, paste,collapse = " + "), # triples
+										 paste("( ", combn(test.list,3) %>% apply(MARGIN = 2, paste,collapse = " + ")," )^2")  # triples with pairwise interaction
+	)
+}
+
+
+
+
+if(base.eq){eq.list <- c("Age_4 ~ -1 + Age_3",paste("Age_4 ~ -1 + Age_3",covars.combos,sep=" + "))} # also include the "no cov" option in the candidate models
+if(!base.eq){eq.list <- paste("Age_4 ~ -1 + Age_3",covars.combos,sep=" + ")} # only include variations of the covariate model
+
+
+eq.list
+
+
+
+
+
