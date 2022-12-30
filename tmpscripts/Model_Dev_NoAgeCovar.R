@@ -17,7 +17,7 @@ data.noagewithcovar$data$Total
 data.noagewithcovar$covariates
 !is.null(data.noagewithcovar$covariates)
 
-data.noagewithcovar$data
+data.noagewithcovar$data$Total
 
 
 names(data.noagewithcovar$covariates)[-1]
@@ -145,6 +145,13 @@ test.fit <- forecastR:::noage.covar.est(data.noagewithcovar$data$Total,
 
 
 test.fit
+
+
+
+
+
+##################################
+# FitModel
 
 
 
