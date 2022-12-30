@@ -4,11 +4,11 @@ Title: Forecast stuff
 Version: 0.0.0.9000
 Authors@R: c(
     person("Antonio", "Velez-Espino", email = "Antonio.Velez-Espino@dfo-mpo.gc.ca", role=c("aut")),
-    person("Michael", "Folkes", email = "michael.folkes@dfo-mpo.gc.ca", role = c("aut", "cre")),
-    person("Gottfried", "Pestal", email = "gottfried.pestal@solv.ca", role = "aut"),
+	person("Gottfried", "Pestal", email = "gottfried.pestal@solv.ca", role = c("aut", "cre")),
+    person("Michael", "Folkes", email = "michael.folkes@dfo-mpo.gc.ca", role = "aut" ),
     person("Isabella", "Ghement", role = "aut")
     )
-Maintainer: Michael Folkes <michael.folkes@dfo-mpo.gc.ca>
+Maintainer: Gottfried Pestal <gottfried.pestal@solv.ca>
 Description: ForecastR generates age-specific (or total abundance) forecasts of
     escapement or terminal run using a variety of generic models, enabling the
     users to perform the following interactive tasks with the help of SHINY 

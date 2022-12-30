@@ -16,6 +16,10 @@ head(data.noagewithcovar$data)
 data.noagewithcovar$data$Total
 data.noagewithcovar$covariates
 !is.null(data.noagewithcovar$covariates)
+
+data.noagewithcovar$data
+
+
 names(data.noagewithcovar$covariates)[-1]
 
 
@@ -119,16 +123,32 @@ eq.list
 
 ################################################################################################################
 # FUNCTION CHECKING
-
-
+library(tidyverse)
+# data check
 
 forecastR:::noage.covar.datacheck
 forecastR:::noage.covar.datacheck(data.noagewithcovar,tracing = TRUE)
 
 
 
+# model fit (incl model selection)
+
+forecastR:::noage.covar.est
 
 
+test.fit <- forecastR:::noage.covar.est(data.noagewithcovar$data$Total,
+																				settings = list(glm.family = "poisson",
+																							 tol.AIC = 0.75,
+																							 tol.r.sq = 0.02,
+																							 base.eq ="Total ~"),
+														tracing=FALSE)
+
+
+test.fit
+
+
+
+forecastR:::sub.fcdata
 
 
 

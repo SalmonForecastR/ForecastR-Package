@@ -520,9 +520,9 @@ if(length(covars.list)>=3){
 
 	}
 
-	print("AIC debug ---")
-	print(diy.out$AIC)
-	print(settings$tol.AIC)
+	#print("AIC debug ---")
+	#print(diy.out$AIC)
+	#print(settings$tol.AIC)
 
 	diy.out <- diy.out %>%
 		mutate(diffAIC = min(AIC)-AIC) %>%
@@ -579,7 +579,7 @@ return(c(list(model.type = "SibRegComplex",
 
 
 
-sibreg.complex.pt.fc <- function(fit.obj, data,settings = NULL){
+sibreg.complex.pt.fc <- function(fit.obj, data, settings = NULL){
 # fit.obj = object created from fitModel()
 # data = data frame with one element of the list created by sub.fcdata()
 
@@ -1105,15 +1105,18 @@ noage.covar.est <- function(X, settings = list(glm.family = "poisson",
 	}
 
 
-eq.list <- paste(settings$base.eq,covars.combos,sep=" + ") # only include variations of the covariate model
+eq.list <- paste(settings$base.eq,covars.combos,sep=" ") # only include variations of the covariate model
 
 diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.r.sq = NA, AIC = NA)
 
 	for(i in 1:length(eq.list)){
-		#print("------------------")
-		#print(eq.list[i])
+   #print("------------------")
+	 #print(paste(i,"of",length(eq.list)))
+	 #print(eq.list[i])
 
 		fit.tmp <- glm(eq.list[i], data = X, family = settings$glm.family)
+
+		#print(summary(fit.tmp))
 
 		#calculate McFadden's R-squared for model
 		# Source: https://www.statology.org/glm-r-squared/
@@ -1126,9 +1129,9 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 
 	}
 
-	print("AIC debug ---")
-	print(diy.out$AIC)
-	print(settings$tol.AIC)
+#	print("AIC debug ---")
+#	print(diy.out$AIC)
+#	print(settings$tol.AIC)
 
 	diy.out <- diy.out %>%
 		mutate(diffAIC = min(AIC)-AIC) %>%
@@ -1155,7 +1158,10 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 	# FITTING STEP (Using selected model, get lm obj, fitted vals etc)
 
 	eq.use <- diy.out$equ[diy.out$selected]
-	model.fit <- lm.fit(formula.use = eq.use ,data.use=X %>% select(-Run_Year, -Brood_Year) )
+
+
+	model.fit <- glm(eq.use, data = X, family = settings$glm.family)
+
 
 	# OUTPUT
 
@@ -1173,14 +1179,14 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 
 
 
-noage.covar.pt.fc <- function(fit.obj, data,settings = NULL){
+noage.covar.pt.fc <- function(fit.obj, data, settings = NULL){
 	# fit.obj = object created from fitModel()
 	# data = data frame with one element of the list created by sub.fcdata()
 
 
 	# This has a temporary patch below
 	# fit.obj$fit.obj should not be necessary
-	# -> should fix list object handling between sibreg.simple.est() and this fn.
+	# -> should fix list object handling between noage.covar.est() and this fn.
 
 	#print("entering sibreg.pt.fc -----------------------------")
 	#print(names(fit.obj))
