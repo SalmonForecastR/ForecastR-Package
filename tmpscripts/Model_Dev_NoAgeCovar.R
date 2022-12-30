@@ -29,12 +29,16 @@ fc.yr <- data.noagewithcovar$specs$forecastingyear
 
 fit1 <- glm(Total ~  Cov_npgosum2 + Cov_EV + Cov_epnpsum2, data = data.noagewithcovar$data$Total, family = "poisson")
 summary(fit1)
+sort(names(summary(fit1)))
+
+summary(fit1)$adj.r.sq
+summary(fit1)$aic
 
 
 data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022)
 
 
-fc.fit1 <- predict(object = fit1, newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022), type = "response")
+fc.fit1 <- predict.glm(object = fit1, newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022), type = "response")
 fc.fit1
 
 
