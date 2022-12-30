@@ -1035,7 +1035,7 @@ expsmooth.list <- list(estimator = expsmooth.est, datacheck= expsmooth.datacheck
 
 
 
-
+#----------------------------------------------------------------------------------
 
 #### Noage Covar Model  (No age classes, but using covariates to total return####
 
@@ -1070,16 +1070,17 @@ noage.covar.datacheck <- function(model.data,tracing=FALSE){
 
 
 
-noage.covar.est <- function(X, settings = list(tol.AIC = 0.75,
+noage.covar.est <- function(X, settings = list(glm.family = "poisson",
+																							 	tol.AIC = 0.75,
 																									tol.r.sq = 0.02,
-																									base.eq ="Age_4 ~ -1 + Age_3",
-																									incl.base.eq = TRUE),
+																									base.eq ="Total ~"),
 															 tracing=FALSE){
-	# X data frame with Run_Year, Brood_Year Age_4 Age_3, and several covariates marked as  "Cov_LABEL"
+	# X data frame with Run_Year, Brood_Year Total, and several covariates marked as  "Cov_LABEL"
+
 	# tol.AIC  AIC tolerance: include in shortlist any with x% prob that this version will "minimize information loss" (i.e. best fit)
 	# tol.r.sq  Rsq tolerance: include in shortlist any with adj.r.sq >=  max(adj.r.sq)
 	# base.eq  simple sibling regression equation specifying the age classes to use (e.g.: "Age_4 ~ -1 + Age_3")
-	# incl.base.eq if TRUE also include the simple sibreg in the model ranking (i.e. if running this functions outside the app)
+
 
 
 	# MODEL SELECTION STEP
@@ -1104,23 +1105,22 @@ noage.covar.est <- function(X, settings = list(tol.AIC = 0.75,
 	}
 
 
-	#covars.combos
+eq.list <- paste(settings$base.eq,covars.combos,sep=" + ") # only include variations of the covariate model
 
-	if(settings$incl.base.eq){eq.list <- c(settings$base.eq,paste(settings$eq.base,covars.combos,sep=" + "))} # also include the "no cov" option in the candidate models
-	if(!settings$incl.base.eq){eq.list <- paste(settings$base.eq,covars.combos,sep=" + ")} # only include variations of the covariate model
-	#
-
-
-	diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.r.sq = NA, AIC = NA)
+diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.r.sq = NA, AIC = NA)
 
 	for(i in 1:length(eq.list)){
 		#print("------------------")
 		#print(eq.list[i])
 
-		fit.tmp <- lm(eq.list[i],  X)
-		fit.tmp
-		diy.out$adj.r.sq[i] <- round(summary(fit.tmp)$adj.r.squared,3)
-		diy.out$AIC[i] <- round(AIC(fit.tmp),3)
+		fit.tmp <- glm(eq.list[i], data = X, family = settings$glm.family)
+
+		#calculate McFadden's R-squared for model
+		# Source: https://www.statology.org/glm-r-squared/
+		# issue discussion: https://github.com/SalmonForecastR/ForecastR-Package/issues/4
+		diy.out$adj.r.sq[i] <- round(	with(summary(fit.tmp), 1 - deviance/null.deviance),3)
+
+		diy.out$AIC[i] <- round(summary(fit.tmp)$aic,3)
 		diy.out$numCoeff[i] <- length(fit.tmp$coefficients)
 
 
@@ -1145,23 +1145,12 @@ noage.covar.est <- function(X, settings = list(tol.AIC = 0.75,
 
 	diy.out$selected <- FALSE
 
-	# OLD
-	#select.idx <- diy.out$shortAIC & diy.out$numCoeff == min(diy.out$numCoeff[diy.out$shortAIC])
-	#if(sum(select.idx)>1){select.idx <- select.idx & diy.out$AIC == min(diy.out$AIC[select.idx]) }
-
 	# NEW
 	n.shortboth <- sum(diy.out$shortBoth)
-	#print(n.shortboth)
 
 	if(n.shortboth == 1){ diy.out$selected[diy.out$shortBoth] <- TRUE}
-
 	if(n.shortboth > 1){ diy.out$selected[diy.out$shortBoth & diy.out$rankRsq == min(diy.out$rankRsq[diy.out$shortBoth]) ] <- TRUE  }
-
 	if(n.shortboth == 0){diy.out$selected[diy.out$shortAIC & diy.out$rankRsq == min(diy.out$rankRsq[diy.out$shortAIC]) ] <- TRUE  }
-
-
-	#print(diy.out)
-
 
 	# FITTING STEP (Using selected model, get lm obj, fitted vals etc)
 
@@ -1170,14 +1159,13 @@ noage.covar.est <- function(X, settings = list(tol.AIC = 0.75,
 
 	# OUTPUT
 
-	return(c(list(model.type = "SibRegComplex",
+	return(c(list(model.type = "NoAgeCovar",
 								formula = eq.use,
-								var.names = paste(paste(names(X)[grepl("Age_",names(X))],collapse = ","), covars.combos[diy.out$selected],sep = ","),
-								est.fn = "lm()"),
+								var.names = paste("Total", covars.combos[diy.out$selected],sep = ","),
+								est.fn = paste("glm() with family=",settings$lm.family),
 					 model.fit,
 					 list(fitted.values = model.fit$fitted.values.raw),
-					 list(model.selection = diy.out))
-	)
+					 list(model.selection = diy.out))) )
 
 
 } # end noage.covar.est
@@ -1197,11 +1185,11 @@ noage.covar.pt.fc <- function(fit.obj, data,settings = NULL){
 	#print("entering sibreg.pt.fc -----------------------------")
 	#print(names(fit.obj))
 
-	pt.fc <- predict.lm(fit.obj$fit.obj,newdata = data, interval= "prediction", level=0.8 )
+	pt.fc <- predict.glm(fit.obj$fit.obj,newdata = data, type= "prediction", level=0.8 )
 
 	return(pt.fc)
 
-}#END noage.covar.pt.fc
+} #END noage.covar.pt.fc
 
 # Merge object
 
@@ -1239,4 +1227,8 @@ estimation.functions <- list(Naive = naive.list,
                              TimeSeriesExpSmooth = expsmooth.list,
                              SibRegComplex=sibreg.complex.list,
 														 NoAgeCovar = noage.covar.list)
+
+
+
+
 
