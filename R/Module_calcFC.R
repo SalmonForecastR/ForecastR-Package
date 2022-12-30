@@ -55,8 +55,7 @@ calcFC <- function(fit.obj= NULL, data = NULL, data.sibreg = NULL, fc.yr= NULL, 
 ##########################################################################################################
 
 sub.fcdata <- function(fit,data = NULL ,data.sibreg = NULL, fc.yr,pred = NULL, cov.in = NULL){
-	# This function uses the fitted model parameters to calculate a forecast
-	# with optional bootstrap distribution
+	# This function prepares the data for the forecasting step (i.e., input to predict function)
 
 	# GP 2021: I think the predictors and covariates arguments are no longer used, need to verify!!!!!!!!!!!!!!!
 
@@ -162,9 +161,9 @@ for(age.use in names(data)){
 		print(age.use)
 
 		br.yr.use <- fc.yr - age.num
-		
-		
-		
+
+
+
 		pred.var.all <- names(fit[[age.use]]$coefficients)
 		print("pred.var.all")
 		print(pred.var.all)
