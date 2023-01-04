@@ -154,6 +154,26 @@ test.fit
 # FitModel
 
 
+tmp.fitmodel <- fitModel(model= "Naive",
+													data = data.noagewithcovar$data,
+													data.sibreg = NULL,
+													settings = list(avg.yrs = 3),
+													tracing=FALSE)
+tmp.fitmodel
+
+
+
+test.fitmodel <- fitModel(model= "NoAgeCovar",
+										 data = data.noagewithcovar$data,
+										 data.sibreg = NULL,
+										 settings = list(glm.family = "poisson",
+										 								tol.AIC = 0.75,
+										 								tol.r.sq = 0.02,
+										 								base.eq ="Total ~"),
+										 tracing=FALSE)
+
+
+
 
 forecastR:::sub.fcdata
 

@@ -400,16 +400,17 @@ if(model %in%  c("NoAgeCovar")){
 
 #	if(any(is.na(ages))){
 		data.in <- data[["Total"]]
-		out.list[["Total"]] <- c(estimation.functions[[model]]$estimator(model.data = data.in,settings = settings),
+		out.list[["Total"]] <- c(estimation.functions[[model]]$estimator(data.in,settings = settings),
 														 list(run.yrs = data[["Total"]][,1]))
+
+		print(names(out.list[["Total"]] ))
+		print(out.list[["Total"]] )
+
 #	} # end if no age classes
 
 
 
 	# SET IT UP TO WORK  WITH AGE CLASS DATA AS WELL?
-
-
-
 
 
 
@@ -429,3 +430,4 @@ out.list <- c(out.list,list(fitted.pm=pm.out),list(settings = settings))
 return(out.list)
 
 }# end fit.FC()
+

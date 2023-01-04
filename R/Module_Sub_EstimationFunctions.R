@@ -1133,12 +1133,14 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 #	print(diy.out$AIC)
 #	print(settings$tol.AIC)
 
+
 	diy.out <- diy.out %>%
 		mutate(diffAIC = min(AIC)-AIC) %>%
 		mutate(probAIC = exp(diffAIC/2)) %>%
 		mutate(rankAIC = rank(AIC,ties.method="min"),rankRsq = rank(-adj.r.sq,ties.method="min")) %>%
 		mutate(shortAIC = probAIC >= settings$tol.AIC, shortRsq = adj.r.sq >= (max(adj.r.sq) - settings$tol.r.sq)  ) %>%
 		mutate(shortBoth = shortAIC & shortRsq)
+
 
 	# REVISED!!!!!!!!!!!!!!!!!!!!!!
 	# if shortBoth = TRUE, then a model is on the shortlist for both AIC and r2
@@ -1160,7 +1162,13 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 	eq.use <- diy.out$equ[diy.out$selected]
 
 
+
+
 	model.fit <- glm(eq.use, data = X, family = settings$glm.family)
+
+
+	#print(fitted(model.fit))
+
 
 
 	# OUTPUT
@@ -1170,7 +1178,7 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 								var.names = paste("Total", covars.combos[diy.out$selected],sep = ","),
 								est.fn = paste("glm() with family=",settings$lm.family),
 					 model.fit,
-					 list(fitted.values = model.fit$fitted.values.raw),
+					 list(fitted.values = fitted(model.fit) ),
 					 list(model.selection = diy.out))) )
 
 
@@ -1191,7 +1199,11 @@ noage.covar.pt.fc <- function(fit.obj, data, settings = NULL){
 	#print("entering sibreg.pt.fc -----------------------------")
 	#print(names(fit.obj))
 
+	print("flag 1")
+
 	pt.fc <- predict.glm(fit.obj$fit.obj,newdata = data, type= "prediction", level=0.8 )
+
+	print("flag 2")
 
 	return(pt.fc)
 
