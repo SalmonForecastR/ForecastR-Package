@@ -253,11 +253,11 @@ data.sub <- data.frame(br.yr = data.sibreg$Brood_Year,
 						x = data.sibreg[, pred.col ]) %>%
 					drop_na()
 
-print("source: data.sibreg")
-print(head(data.sibreg))
+#print("source: data.sibreg")
+#print(head(data.sibreg))
 
-print("sibreg input (not complex)")
-print(head(data.sub))
+#print("sibreg input (not complex)")
+#print(head(data.sub))
 
 data.in <- data.sub %>% select(y,x)
 yrs.use.y <- data.sub[,"br.yr"] + age.do # for consistency with old version, needed downstream
@@ -266,7 +266,7 @@ yrs.use.y <- data.sub[,"br.yr"] + age.do # for consistency with old version, nee
 } # end data prep if sibreg, but not complex
 
 
-# set up the data for the complex ibreg
+# set up the data for the complex sibreg
 if(grepl("Complex",model)){
 
 # add the previous age to the df for the forecasted age df which also has the covariates
@@ -404,7 +404,9 @@ if(model %in%  c("NoAgeCovar")){
 														 list(run.yrs = data[["Total"]][,1]))
 
 		print(names(out.list[["Total"]] ))
-		print(out.list[["Total"]] )
+		print(out.list[["Total"]]$fitted.values )
+		print(out.list[["Total"]]$obs.values )
+		print(out.list[["Total"]]$fitted.values - out.list[["Total"]]$obs.values)
 
 #	} # end if no age classes
 
@@ -423,6 +425,8 @@ if(model %in%  c("NoAgeCovar")){
 
 
 #calculate performance measure summary
+
+
 
 pm.out <- resids.pm(out.list,type="fitted")
 out.list <- c(out.list,list(fitted.pm=pm.out),list(settings = settings))

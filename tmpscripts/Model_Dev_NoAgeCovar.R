@@ -154,15 +154,6 @@ test.fit
 # FitModel
 
 
-tmp.fitmodel <- fitModel(model= "Naive",
-													data = data.noagewithcovar$data,
-													data.sibreg = NULL,
-													settings = list(avg.yrs = 3),
-													tracing=FALSE)
-tmp.fitmodel
-
-
-
 test.fitmodel <- fitModel(model= "NoAgeCovar",
 										 data = data.noagewithcovar$data,
 										 data.sibreg = NULL,
@@ -173,9 +164,8 @@ test.fitmodel <- fitModel(model= "NoAgeCovar",
 										 tracing=FALSE)
 
 
+test.fitmodel
 
-
-forecastR:::sub.fcdata
 
 
 
