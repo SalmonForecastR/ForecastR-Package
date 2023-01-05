@@ -1178,6 +1178,7 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 								var.names = paste("Total", covars.combos[diy.out$selected],sep = ","),
 								est.fn = paste("glm() with family=",settings$lm.family)),
 					 model.fit,
+					 #list(glm.obj = model.fit),  # TESTING THIS TO HELP WITH predict.glm() error
 					 list(fitted.values = fitted(model.fit),obs.values = X$Total ),
 					 list(model.selection = diy.out)))
 
@@ -1196,14 +1197,16 @@ noage.covar.pt.fc <- function(fit.obj, data, settings = NULL){
 	# fit.obj$fit.obj should not be necessary
 	# -> should fix list object handling between noage.covar.est() and this fn.
 
-	#print("entering sibreg.pt.fc -----------------------------")
-	#print(names(fit.obj))
+	print("entering noage.covar.pt.fc -----------------------------")
+	print("names(fit.obj)")
+	print(sort(names(fit.obj)))
+	print("data")
+	print(data)
 
-	print("flag 1")
 
-	pt.fc <- predict.glm(fit.obj$fit.obj,newdata = data, type= "prediction", level=0.8 )
+	pt.fc <- predict.glm(fit.obj,newdata = data, type= "response", level=0.8 )
 
-	print("flag 2")
+	print(pt.fc)
 
 	return(pt.fc)
 
