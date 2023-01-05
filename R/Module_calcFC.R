@@ -57,16 +57,18 @@ calcFC <- function(fit.obj= NULL, data = NULL, data.sibreg = NULL, fc.yr= NULL, 
 sub.fcdata <- function(fit,data = NULL ,data.sibreg = NULL, fc.yr,pred = NULL, cov.in = NULL){
 	# This function prepares the data for the forecasting step (i.e., input to predict function)
 
-	# GP 2021: I think the predictors and covariates arguments are no longer used, need to verify!!!!!!!!!!!!!!!
-
-#print("starting sub.fcdata()")
+print("starting sub.fcdata()")
 
 data.list <- list()
 
 age.classes <- names(data)
 ages <- as.numeric(gsub("\\D", "", age.classes)) # as per https://stat.ethz.ch/pipermail/r-help/2011-February/267946.html
+
 age.prefix <- gsub(ages[1],"",age.classes[1])
 
+
+#print("ages")
+#print(ages)
 
 #################
 # No Age
@@ -74,6 +76,9 @@ age.prefix <- gsub(ages[1],"",age.classes[1])
 # for now this handles the "noage" version, need to test to ensure robustness
 # also: should be able to combine the 2 versions into 1 generic, but for now just make it work
 if(any(is.na(ages))){
+
+print("starting no age path")
+
 
 	model.type <- fit[["Total"]]$model.type
 
@@ -100,6 +105,45 @@ if(any(is.na(ages))){
 		warning("ReturnRate FC for noAge data not yet implemented")
 		stop()
 	}
+
+
+
+
+	if(model.type %in% c("NoAgeCovar")){
+
+
+    # Why is all this intercept stuff needed for the glm() outputs, but not with the other model forms?
+		# can fix it earlier on, or would that mess up the call to predict.glm() later?
+
+		pred.var.all <- names(fit[["Total"]]$coefficients)
+		#print("pred.var.all -orig")
+		pred.var.all <- pred.var.all[pred.var.all != "(Intercept)"]
+		#print("pred.var.all -trimmed")
+		print(pred.var.all)
+		interaction.idx <- grepl(":",pred.var.all)
+		pred.var.cov<- pred.var.all[!interaction.idx]
+		print("pred.var.cov")
+		print(pred.var.cov)
+    print(fc.yr)
+
+
+
+		data.cov <-	cov.in %>%
+			select(Run_Year, all_of(pred.var.cov)) %>%
+			dplyr::filter(Run_Year == fc.yr)
+
+
+		print(data.cov)
+
+		data.df	 <-  data.cov # rename for consistency with other covariate models
+		print("data.df")
+		print(data.df)
+
+		data.list[["Total"]] <-  data.df
+
+	}
+
+
 
 
 } # end if no age classes
@@ -157,7 +201,7 @@ for(age.use in names(data)){
 	if(model.type %in% c("SibRegComplex")){
 
 		# should be able to streamline this chunk a lot!
-		print("---------- INSIDE sub.fcdata > model.type == SibRegComplex -------------")
+		print("---------- INSIDE sub.fcdata -> model.type == SibRegComplex -------------")
 		print(age.use)
 
 		br.yr.use <- fc.yr - age.num

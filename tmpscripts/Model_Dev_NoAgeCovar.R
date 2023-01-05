@@ -7,6 +7,10 @@ library(tidyverse)
 data.noagewithcovar.raw <- read.csv("NoAge_Covar_Test_INPUT_Fixed_Covar_Labels.csv", stringsAsFactors = FALSE)
 
 head(data.noagewithcovar.raw)
+data.noagewithcovar.raw$Run_Year
+
+
+
 
 data.noagewithcovar <- prepData(data.noagewithcovar.raw,out.labels="v2")
 
@@ -39,10 +43,14 @@ summary(fit1)$adj.r.sq
 summary(fit1)$aic
 
 
+sort(names(fit1))
+
 data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022)
 
 
-fc.fit1 <- predict.glm(object = fit1, newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022), type = "response")
+fc.fit1 <- predict.glm(object = fit1,
+											 newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022),
+											 type = "response")
 fc.fit1
 
 
@@ -165,7 +173,39 @@ test.fitmodel <- fitModel(model= "NoAgeCovar",
 
 
 test.fitmodel
+sort(names(test.fitmodel))
+sort(names(test.fitmodel$Total))
+
+#####################################
+# calcFC
+
+
+names(data.noagewithcovar$data)
+data.noagewithcovar$data[["Total"]]
+
+sort(names(fit1))
+sort(names(test.fitmodel$Total))
+test.fitmodel$Total$family
+
+predict.glm(object = fit1,
+											 newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022),
+											 type = "response")
+
+predict.glm(object = test.fitmodel$Total,
+						newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022),
+						type = "response")
 
 
 
+test.fc.out <- calcFC(fit.obj= test.fitmodel,
+			 data = data.noagewithcovar$data,
+			 data.sibreg = NULL,
+			 fc.yr= data.noagewithcovar$specs$forecastingyear,
+			 settings = test.fitmodel$settings,
+			 tracing=FALSE,
+			 predictors = NULL,
+			 covariates = data.noagewithcovar$covariates )
+
+
+test.fc.out
 
