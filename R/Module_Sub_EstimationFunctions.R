@@ -1176,10 +1176,10 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 	return(c(list(model.type = "NoAgeCovar",
 								formula = eq.use,
 								var.names = paste("Total", covars.combos[diy.out$selected],sep = ","),
-								est.fn = paste("glm() with family=",settings$lm.family),
+								est.fn = paste("glm() with family=",settings$lm.family)),
 					 model.fit,
-					 list(fitted.values = fitted(model.fit) ),
-					 list(model.selection = diy.out))) )
+					 list(fitted.values = fitted(model.fit),obs.values = X$Total ),
+					 list(model.selection = diy.out)))
 
 
 } # end noage.covar.est
