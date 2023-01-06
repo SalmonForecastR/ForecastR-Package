@@ -187,11 +187,24 @@ sort(names(fit1))
 sort(names(test.fitmodel$Total))
 test.fitmodel$Total$family
 
+str(test.fitmodel$Total)
+
+list.combo <- c(list(model.type = "NoAgeCovar",
+										 formula = "eq.use",
+										 var.names = paste("Total", "Text",sep = ","),
+										 est.fn = paste("glm() with family=","Text")),
+								list(glm.obj = test.fitmodel$Total) )
+
+names(list.combo)
+list.combo
+
+
+
 predict.glm(object = fit1,
 											 newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022),
 											 type = "response")
 
-predict.glm(object = test.fitmodel$Total,
+predict.glm(object = test.fitmodel$Total$glm.obj,
 						newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022),
 						type = "response")
 

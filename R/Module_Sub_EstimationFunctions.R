@@ -1177,8 +1177,8 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 								formula = eq.use,
 								var.names = paste("Total", covars.combos[diy.out$selected],sep = ","),
 								est.fn = paste("glm() with family=",settings$lm.family)),
-					 model.fit,
-					 #list(glm.obj = model.fit),  # TESTING THIS TO HELP WITH predict.glm() error
+					 #model.fit,
+					 list(glm.obj = model.fit),  # TESTING THIS TO HELP WITH predict.glm() error
 					 list(fitted.values = fitted(model.fit),obs.values = X$Total ),
 					 list(model.selection = diy.out)))
 
@@ -1204,7 +1204,7 @@ noage.covar.pt.fc <- function(fit.obj, data, settings = NULL){
 	print(data)
 
 
-	pt.fc <- predict.glm(fit.obj,newdata = data, type= "response", level=0.8 )
+	pt.fc <- predict.glm(fit.obj$glm.obj,newdata = data, type= "response", level=0.8 )
 
 	print(pt.fc)
 
