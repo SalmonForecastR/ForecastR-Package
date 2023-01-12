@@ -42,9 +42,11 @@ multiFC <- function(data.file, settings.list, do.retro = FALSE, retro.min.yrs=15
 
 out.type <- match.arg(out.type)
 
+print("before prepData()")
 
 dat.prepped <-  prepData(data.file,out.labels="v2")  # prep data for the model fit
 
+print("after prepData()")
 
 # start a list for storing
 out.list <- list()
