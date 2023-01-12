@@ -57,7 +57,7 @@ calcFC <- function(fit.obj= NULL, data = NULL, data.sibreg = NULL, fc.yr= NULL, 
 sub.fcdata <- function(fit,data = NULL ,data.sibreg = NULL, fc.yr,pred = NULL, cov.in = NULL){
 	# This function prepares the data for the forecasting step (i.e., input to predict function)
 
-print("starting sub.fcdata()")
+#print("starting sub.fcdata()")
 
 data.list <- list()
 
@@ -77,7 +77,7 @@ age.prefix <- gsub(ages[1],"",age.classes[1])
 # also: should be able to combine the 2 versions into 1 generic, but for now just make it work
 if(any(is.na(ages))){
 
-print("starting no age path")
+#print("starting no age path")
 
 
 	model.type <- fit[["Total"]]$model.type
@@ -108,24 +108,23 @@ print("starting no age path")
 
 
 
-
 	if(model.type %in% c("NoAgeCovar")){
 
 
     # Why is all this intercept stuff needed for the glm() outputs, but not with the other model forms?
 		# can fix it earlier on, or would that mess up the call to predict.glm() later?
 
-		pred.var.all <- names(fit[["Total"]]$coefficients)
+		pred.var.all <- names(fit[["Total"]]$glm.obj$coefficients)
 		#print("pred.var.all -orig")
+		#print(pred.var.all )
 		pred.var.all <- pred.var.all[pred.var.all != "(Intercept)"]
 		#print("pred.var.all -trimmed")
-		print(pred.var.all)
+		#print(pred.var.all)
 		interaction.idx <- grepl(":",pred.var.all)
 		pred.var.cov<- pred.var.all[!interaction.idx]
-		print("pred.var.cov")
-		print(pred.var.cov)
-    print(fc.yr)
-
+		#print("pred.var.cov")
+		#print(pred.var.cov)
+    #print(fc.yr)
 
 
 		data.cov <-	cov.in %>%
@@ -133,11 +132,11 @@ print("starting no age path")
 			dplyr::filter(Run_Year == fc.yr)
 
 
-		print(data.cov)
+		#print(data.cov)
 
 		data.df	 <-  data.cov # rename for consistency with other covariate models
-		print("data.df")
-		print(data.df)
+		#print("data.df")
+		#print(data.df)
 
 		data.list[["Total"]] <-  data.df
 
@@ -209,37 +208,37 @@ for(age.use in names(data)){
 
 
 		pred.var.all <- names(fit[[age.use]]$coefficients)
-		print("pred.var.all")
-		print(pred.var.all)
+		#print("pred.var.all")
+		#print(pred.var.all)
 		age.idx <- grepl("Age_",pred.var.all)
 		interaction.idx <- grepl(":",pred.var.all)
 		pred.var.age <- pred.var.all[age.idx]
 		pred.var.cov<- pred.var.all[!age.idx & !interaction.idx]
-		print("pred.var.cov")
-		print(pred.var.cov)
+		#print("pred.var.cov")
+		#print(pred.var.cov)
 
 		age.sib <- paste(age.prefix,age.num-1,sep="")
 
 		data.sib<-  data[[age.sib]] %>%
 										select(Brood_Year, all_of(pred.var.age)) %>%
 										dplyr::filter(Brood_Year == br.yr.use)
-		print("data.sib")
-		print(data.sib)
-		print("data[[age.use]]")
-		print(data[[age.use]] )
+		#print("data.sib")
+		#print(data.sib)
+		#print("data[[age.use]]")
+		#print(data[[age.use]] )
 
-		print(pred.var.cov)
-		print("head(cov.in)")
-		print(head(cov.in))
-		print(head(cov.in[[age.use]]))
+		#print(pred.var.cov)
+		#print("head(cov.in)")
+		#print(head(cov.in))
+		#print(head(cov.in[[age.use]]))
 
 		data.cov <-	cov.in[[age.use]] %>%
 									select(Brood_Year, all_of(pred.var.cov)) %>%
 										dplyr::filter(Brood_Year == br.yr.use)
-		print(data.cov)
+	#	print(data.cov)
 
 		data.df	 <-  left_join(data.sib,data.cov, by = "Brood_Year") #%>% as.data.frame()
-		print(data.df)
+	#	print(data.df)
 
 		data.list[[age.use]] <-  data.df
 
@@ -267,10 +266,10 @@ for(age.use in names(data)){
 
 }} # end looping through age classes if have them / need them
 
-print("data.list ----------------------------------")
-print(data.list)
+#print("data.list ----------------------------------")
+#print(data.list)
 
-print("ending sub.fcdata()")
+#print("ending sub.fcdata()")
 
 
 return(data.list)
@@ -299,8 +298,9 @@ sub.pt.fc <- function(fit,data.source,
 
 data <- sub.fcdata(fit = fit , data = data.source, data.sibreg = data.sibreg , fc.yr=fc.yr,pred = pred.,cov.in = cov.)
 
-print("output from sub.fcdata()-----------------------")
-print(data)
+#print("output from sub.fcdata()-----------------------")
+#print(data)
+#print("--------------------------")
 
 #generate output matrix
 out.mat <-  matrix(NA,nrow=1,ncol=length(names(data)),dimnames = list(paste("FC",fc.yr,sep=""),

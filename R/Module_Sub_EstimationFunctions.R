@@ -1197,16 +1197,18 @@ noage.covar.pt.fc <- function(fit.obj, data, settings = NULL){
 	# fit.obj$fit.obj should not be necessary
 	# -> should fix list object handling between noage.covar.est() and this fn.
 
-	print("entering noage.covar.pt.fc -----------------------------")
-	print("names(fit.obj)")
-	print(sort(names(fit.obj)))
-	print("data")
-	print(data)
+	#print("entering noage.covar.pt.fc -----------------------------")
+	#print("names(fit.obj)")
+	#print(sort(names(fit.obj)))
+	#print("data")
+	#print(data)
 
+
+	#print(sort(names(fit.obj$glm.obj)))
 
 	pt.fc <- predict.glm(fit.obj$glm.obj,newdata = data, type= "response", level=0.8 )
 
-	print(pt.fc)
+	#print(pt.fc)
 
 	return(pt.fc)
 
