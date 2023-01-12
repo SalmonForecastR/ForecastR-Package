@@ -207,7 +207,9 @@ predict.glm(object = fit1,
 predict.glm(object = test.fitmodel$Total$glm.obj,
 						newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022),
 						type = "response")
+sort(names(test.fitmodel$Total$glm.obj))
 
+names(test.fitmodel[["Total"]]$glm.obj) # $coefficients)
 
 
 test.fc.out <- calcFC(fit.obj= test.fitmodel,
