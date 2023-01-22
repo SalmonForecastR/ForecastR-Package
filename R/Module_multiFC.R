@@ -104,11 +104,11 @@ print(paste("starting",model.name))
 
 	if(int.type=="Prediction"){
 
-
+			print("Flag 1")
 
 			int.quants <- doSampleFromInt(fc.obj=fc.calc, interval.n=int.n,interval.quants=TRUE)
 
-
+			print("Flag 2")
 
 			if(tracing){
 			print("prediction quants")

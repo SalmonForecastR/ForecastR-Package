@@ -1161,9 +1161,6 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 
 	eq.use <- diy.out$equ[diy.out$selected]
 
-
-
-
 	model.fit <- glm(eq.use, data = X, family = settings$glm.family)
 
 
