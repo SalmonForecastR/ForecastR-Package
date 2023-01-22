@@ -237,9 +237,22 @@ settings.use <- list(Naive1 = list(model.type="Naive",settings=list(avg.yrs=1)),
 										 Naive5 = list(model.type="Naive",settings=list(avg.yrs=5)),
 										 NoAgeCovar = list(model.type = "NoAgeCovar",
 										 									settings = list(glm.family = "poisson",	tol.AIC = 0.75,	tol.r.sq = 0.02,
-										 									base.eq ="Total ~")
+										 									base.eq ="Total ~")	)
+											)
+
+
+settings.use.naiveonly <- list(Naive1 = list(model.type="Naive",settings=list(avg.yrs=1)),
+										 Naive3 = list(model.type="Naive",settings=list(avg.yrs=3)),
+										 Naive5 = list(model.type="Naive",settings=list(avg.yrs=5))
 										 )
-)
+
+
+
+
+
+#######
+# POINT FORECAST TESTING
+
 
 
 multiresults.ptfconly <- multiFC(data.file=data.noagewithcovar.raw , # remember that prepData happens inside of multiFC
@@ -253,16 +266,12 @@ multiresults.ptfconly <- multiFC(data.file=data.noagewithcovar.raw , # remember 
 multiresults.ptfconly
 
 
-multiresults.predint<- multiFC(data.file=data.withage.raw,settings.list=settings.use,
-															 do.retro=FALSE,retro.min.yrs=15,
-															 out.type="short",
-															 int.type = "Prediction", int.n = 100,
-															 boot.type = "meboot",
-															 tracing=TRUE)
-multiresults.predint
+
+#######################
+# RETROSPECTIVE INTERVAL TESTING
 
 
-multiresults.retro <- multiFC(data.file=data.withage.raw,settings.list=settings.use,
+multiresults.retro <- multiFC(data.file=data.noagewithcovar.raw,settings.list=settings.use,
 															do.retro=TRUE,retro.min.yrs=15,
 															out.type="short",
 															int.type = "Retrospective", int.n = 100,
@@ -272,47 +281,41 @@ multiresults.retro <- multiFC(data.file=data.withage.raw,settings.list=settings.
 multiresults.retro
 
 
+#######################
+# BOOTSTRAP INTERVAL TESTING
 
-#####################
-if(FALSE){  #NOT YET REVISED FOR THIS SCRIPT
-
-
-library(forecastR)
-library(dplyr)
-library(purrr)
-library(tidyr)
-
-
-data.withage$sibreg.in
-
-
-test <- bootSeries(series = na.omit(data.withage$sibreg.in$Pooled_5_4), boot.type = "meboot", boot.n = 10 , plot.diagnostics = FALSE,plot.type="sample" )
-dim(test$series.boot)
+multiresults.boot<- multiFC(data.file=data.noagewithcovar.raw,settings.list=settings.use,
+															 do.retro=FALSE,retro.min.yrs=15,
+															 out.type="short",
+															 int.type = "Bootstrap", int.n = 100,
+															 boot.type = "meboot",
+															 tracing=TRUE)
+multiresults.boot
 
 
 
-boot.test <- doBoot(data= data.withage , args.fitmodel= list(model= "SibRegSimple",settings=NULL),
-										args.calcfc = list(fc.yr= data.withage$specs$forecastingyear,  settings = NULL),
-										args.boot = list(boot.type="meboot", boot.n=100, plot.diagnostics=FALSE),  full.out = TRUE, plot.out=FALSE)
+#######################
+# PREDICTION INTERVAL TESTING
+
+
+# these may not be possible / or comparable: https://stackoverflow.com/questions/14423325/confidence-intervals-for-predictions-from-logistic-regression
+
+
+multiresults.predint<- multiFC(data.file=data.noagewithcovar.raw,settings.list=settings.use,
+															 do.retro=FALSE,retro.min.yrs=15,
+															 out.type="short",
+															 int.type = "Prediction", int.n = 100,
+															 boot.type = "meboot",
+															 tracing=TRUE)
+
+
+
+doSampleFromInt(fc.obj=fc.calc, interval.n=int.n,interval.quants=TRUE)
 
 
 
 
-
-
-
-
-multiresults.boot<- multiFC(data.file=data.withage.raw,settings.list=settings.use,
-														do.retro=FALSE,retro.min.yrs=15,
-														out.type="short",
-														int.type = "Bootstrap", int.n = 100,
-														boot.type = "meboot",
-														tracing=TRUE)
-
-
-}
-
-
+multiresults.predint
 
 
 
