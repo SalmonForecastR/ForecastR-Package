@@ -1203,8 +1203,12 @@ noage.covar.pt.fc <- function(fit.obj, data, settings = NULL){
 
 	#print(sort(names(fit.obj$glm.obj)))
 
-	pt.fc <- predict.glm(fit.obj$glm.obj,newdata = data, type= "response", level=0.8 )
+	#pt.fc <- predict.glm(fit.obj$glm.obj,newdata = data, type= "response", level=0.8 )
 
+	# as per https://cran.r-project.org/web/packages/ciTools/vignettes/ciTools-glm-vignette.html
+	df_ints <- data %>% add_ci(fit = fit.obj$glm.obj, names = c("lwr", "upr"), alpha = 0.2) %>%dplyr::rename(fit = pred)
+
+  pt.fc <- df_ints %>% select(fit, lwr,upr) %>% unlist()
 	#print(pt.fc)
 
 	return(pt.fc)

@@ -34,7 +34,8 @@ Imports: forecast,
     meboot,
     moments,
     rmarkdown,
-    stringi   
+    stringi ,
+	ciTools
 VignetteBuilder: knitr
 Encoding: UTF-8
 Date: 2019-02-18 17:11:41 PDT
