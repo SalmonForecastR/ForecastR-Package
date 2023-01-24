@@ -35,23 +35,48 @@ data.noagenocovar$covariates
 
 fc.yr <- data.noagewithcovar$specs$forecastingyear
 
-fit1 <- glm(Total ~  Cov_npgosum2 + Cov_EV + Cov_epnpsum2, data = data.noagewithcovar$data$Total, family = "poisson")
+fit1 <- glm(Total ~  Cov_npgosum2 + Cov_EV + Cov_epnpsum2,
+						data = data.noagewithcovar$data$Total,
+						family = "poisson")
+						#family = poisson(link = "log")) seems to give identical results
 summary(fit1)
 sort(names(summary(fit1)))
 
 summary(fit1)$adj.r.sq
 summary(fit1)$aic
-
-
 sort(names(fit1))
 
 data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022)
 
 
+# testing ciTools pkg
+library(ciTools)
+?add_ci
+
+df <- data.noagewithcovar$data$Total %>% select(Run_Year,Total,Cov_npgosum2,Cov_EV,Cov_epnpsum2)
+
+df_ints <- df %>% add_ci(fit = fit1, names = c("lwr", "upper"), alpha = 0.1)
+
+df_ints
+
+
+
+
+
 fc.fit1 <- predict.glm(object = fit1,
 											 newdata = data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022),
-											 type = "response")
-fc.fit1
+											 type = "response",
+											 se.fit = TRUE)
+#fc.fit1
+#fc.fit1$fit + fc.fit1$se.fit
+#confint(fit1,level =0.8)
+
+df_ints <- data.noagewithcovar$covariates %>% dplyr::filter(Run_Year == 2022) %>%
+	add_ci(fit = fit1, names = c("lwr", "upr"), alpha = 0.2) %>%
+	dplyr::rename(fit = pred)
+
+df_ints %>% select(fit, lwr,upr) %>% unlist()
+
 
 
 
@@ -298,7 +323,8 @@ multiresults.boot
 # PREDICTION INTERVAL TESTING
 
 
-# these may not be possible / or comparable: https://stackoverflow.com/questions/14423325/confidence-intervals-for-predictions-from-logistic-regression
+# these may not be possible / or comparable:
+# https://stackoverflow.com/questions/14423325/confidence-intervals-for-predictions-from-logistic-regression
 
 
 multiresults.predint<- multiFC(data.file=data.noagewithcovar.raw,settings.list=settings.use,
@@ -307,12 +333,6 @@ multiresults.predint<- multiFC(data.file=data.noagewithcovar.raw,settings.list=s
 															 int.type = "Prediction", int.n = 100,
 															 boot.type = "meboot",
 															 tracing=TRUE)
-
-
-
-doSampleFromInt(fc.obj=fc.calc, interval.n=int.n,interval.quants=TRUE)
-
-
 
 
 multiresults.predint
