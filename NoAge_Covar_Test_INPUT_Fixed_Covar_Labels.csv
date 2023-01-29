@@ -1,4 +1,4 @@
-Stock_Name,Stock_Species,Stock_Abundance,Forecasting_Year,Run_Year,Brood_Year,Age_Class,Average_Escapement,Average_Terminal_Run,Cov_npgosum2,Cov_EV,Cov_epnpsum2,Pred_Juv_Outmigrants,Pred_Hat_Releases,Pred_Spawners
+Stock_Name,Stock_Species,Stock_Abundance,Forecasting_Year,Run_Year,Brood_Year,Age_Class,Average_Escapement,Average_Terminal_Run,Cov_npgosum2,Cov_EV,Cov_epnpsum2,Pred_JuvOutmigrants,Pred_HatReleases,Pred_Spawners
 Atnarko,Chinook salmon,Escapement,2022,1992,NA,Total,16074,NA,0.75915069,1.968810302,0.258,NA,1960523,NA
 ,,,NA,1993,NA,Total,14918,NA,-0.187548416,2.127395159,0.438,NA,1980353,NA
 ,,,NA,1994,NA,Total,12664,NA,-0.375211099,1.68230637,-0.06,NA,2076013,NA
