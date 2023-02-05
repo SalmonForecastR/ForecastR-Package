@@ -1176,7 +1176,7 @@ diy.out <- data.frame(ID = 1:length(eq.list), equ = eq.list, numCoeff = NA, adj.
 								est.fn = paste("glm() with family=",settings$lm.family)),
 					 #model.fit,
 					 list(glm.obj = model.fit),  # TESTING THIS TO HELP WITH predict.glm() error
-					 list(fitted.values = fitted(model.fit),obs.values = X$Total ),
+					 list(fitted.values = fitted(model.fit),obs.values = X$Total,residuals = X$Total - fitted(model.fit)  ),
 					 list(model.selection = diy.out)))
 
 
