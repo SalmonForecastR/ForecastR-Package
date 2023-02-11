@@ -200,6 +200,10 @@ test.fitmodel <- fitModel(model= "NoAgeCovar",
 test.fitmodel
 sort(names(test.fitmodel))
 sort(names(test.fitmodel$Total))
+test.fitmodel$Total$model.selection
+
+
+
 
 #####################################
 # calcFC

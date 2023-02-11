@@ -1,7 +1,7 @@
 ## PROTOTYPE WARNING
 
 
-**This is the almost-release version of the ForecastR package**
+**This is the Version 2 of the ForecastR package**
 
 
 The [main project repository](https://github.com/SalmonForecastR), 
@@ -12,14 +12,23 @@ with detailed information (e.g. statistical methods).
 
 ## What's New?
 
+
+*Version 2: 2023 Update --------------------------------------------*
+
+Version 2 includes the following major updates:
+
+* *NoAgeCovar*: For data sets without age classes (e.g., only have total run or escapement) that have covariates,
+fit generalized linear models (GLM) and select the best combination of covariates.
+
+
+*Version 1*
+
 Since the last major release in the spring of 2020,
 the following major updates have been implemented:
 
 * Return Rate (Mechanistic) Model added to the package code
 and to the app interface.
-* Explore tab options dynamically respond to data set and model selection (e.g. only show sibling regression model options
-if data has age classes, menu options for model settings adapt to model selection)
-*  Compare tab model selection re-design: have tabs for each model type now, with model-specific options.
+
 
 
 
