@@ -32,7 +32,8 @@ include.dependencies <- function(){
 #' @import moments
 #' @import rmarkdown
 #' @import rstanarm
-#' @import stringi
+#' @import ciTools
+#' @import 
 #' @return Nothing returned.
 #' @export
 

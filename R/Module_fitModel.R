@@ -26,7 +26,7 @@
 #' @examples
 fitModel <- function(model= c("Naive", "ReturnRate", "Mechanistic",
 						"SibRegSimple","SibRegKalman","SibRegLogPower","SibRegPooledSimple","SibRegPooledLogPower", "SibRegComplex",
-						"TimeSeriesArima","TimeSeriesExpSmooth"),
+						"TimeSeriesArima","TimeSeriesExpSmooth", "NoAgeCovar"),
 						data = NULL, data.sibreg = NULL, settings = NULL,tracing=FALSE){
 # Check inputs
 model <- match.arg(model)
@@ -253,11 +253,11 @@ data.sub <- data.frame(br.yr = data.sibreg$Brood_Year,
 						x = data.sibreg[, pred.col ]) %>%
 					drop_na()
 
-print("source: data.sibreg")
-print(head(data.sibreg))
+#print("source: data.sibreg")
+#print(head(data.sibreg))
 
-print("sibreg input (not complex)")
-print(head(data.sub))
+#print("sibreg input (not complex)")
+#print(head(data.sub))
 
 data.in <- data.sub %>% select(y,x)
 yrs.use.y <- data.sub[,"br.yr"] + age.do # for consistency with old version, needed downstream
@@ -266,7 +266,7 @@ yrs.use.y <- data.sub[,"br.yr"] + age.do # for consistency with old version, nee
 } # end data prep if sibreg, but not complex
 
 
-# set up the data for the complex ibreg
+# set up the data for the complex sibreg
 if(grepl("Complex",model)){
 
 # add the previous age to the df for the forecasted age df which also has the covariates
@@ -373,7 +373,60 @@ if(!any(is.na(ages))){  # if have age classes, loop through them
 
 } # end if time series variation
 
+
+
+
+# NO Age Data with Covariate model
+# Note this section is largely identical to the other variations.
+# The only differences are:
+# - TBI
+
+
+if(model %in%  c("NoAgeCovar")){
+	# Note: This uses "v2" of the output labels from prepData(). The code below does not
+	# automatically detect the column labels (i.e. "Run_Year" is hardwired)
+
+
+	if(tracing){print("starting noage with covar  -------------------")}
+
+
+	if(tracing){print("starting data reorg for noage with covar")}
+
+	age.classes <- names(data)
+	ages <- as.numeric(gsub("\\D", "", age.classes)) # as per https://stat.ethz.ch/pipermail/r-help/2011-February/267946.html
+	age.prefix <- gsub(ages[1],"",age.classes[1])
+	#print(age.prefix)
+
+
+#	if(any(is.na(ages))){
+		data.in <- data[["Total"]]
+		out.list[["Total"]] <- c(estimation.functions[[model]]$estimator(data.in,settings = settings),
+														 list(run.yrs = data[["Total"]][,1]))
+
+		print(names(out.list[["Total"]] ))
+		print(out.list[["Total"]]$fitted.values )
+		print(out.list[["Total"]]$obs.values )
+		print(out.list[["Total"]]$fitted.values - out.list[["Total"]]$obs.values)
+
+#	} # end if no age classes
+
+
+
+	# SET IT UP TO WORK  WITH AGE CLASS DATA AS WELL?
+
+
+
+} # end if no age with covar
+
+
+
+
+
+
+
 #calculate performance measure summary
+
+
 
 pm.out <- resids.pm(out.list,type="fitted")
 out.list <- c(out.list,list(fitted.pm=pm.out),list(settings = settings))
@@ -381,3 +434,4 @@ out.list <- c(out.list,list(fitted.pm=pm.out),list(settings = settings))
 return(out.list)
 
 }# end fit.FC()
+

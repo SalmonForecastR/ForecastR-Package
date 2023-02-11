@@ -29,6 +29,10 @@ complex.sibreg.fitmodel.out <- fitModel(model= "SibRegComplex",
 
 
 names(complex.sibreg.fitmodel.out)
+names(complex.sibreg.fitmodel.out$`Age 5`)
+complex.sibreg.fitmodel.out$`Age 5`$residuals
+
+
 
 complex.sibreg.fitmodel.out$`Age 5`$data
 
